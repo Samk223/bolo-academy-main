@@ -1,0 +1,136 @@
+{
+  "info": {
+    "name": "English Academy API",
+    "description": "API collection for the English Academy application",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["health"]
+        },
+        "description": "Check API server health and configuration status"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Available Slots",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/book-trial",
+          "host": ["{{baseUrl}}"],
+          "path": ["book-trial"]
+        },
+        "description": "Fetch all available time slots for booking a trial class"
+      },
+      "response": []
+    },
+    {
+      "name": "Book Trial Class",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"John Doe\",\n  \"phone\": \"9876543210\",\n  \"email\": \"john@example.com\",\n  \"course\": \"Student English\",\n  \"message\": \"I want to improve my speaking skills\",\n  \"slotId\": \"{{slotId}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/book-trial",
+          "host": ["{{baseUrl}}"],
+          "path": ["book-trial"]
+        },
+        "description": "Book a trial class. First get a slot ID from 'Get Available Slots'"
+      },
+      "response": []
+    },
+    {
+      "name": "Chat with Laila",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Hello! I want to learn English for my job interviews.\"\n    }\n  ],\n  \"language\": \"en\",\n  \"userName\": \"John\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/laila-chat",
+          "host": ["{{baseUrl}}"],
+          "path": ["laila-chat"]
+        },
+        "description": "Chat with Laila AI assistant (streaming SSE response)"
+      },
+      "response": []
+    },
+    {
+      "name": "Evaluate Written Test",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"testType\": \"written\",\n  \"userName\": \"John Doe\",\n  \"userEmail\": \"john@example.com\",\n  \"answers\": [\n    {\n      \"questionId\": 1,\n      \"question\": \"Introduce yourself in 3-4 sentences.\",\n      \"answer\": \"My name is John. I am a software developer from India. I enjoy reading books and playing cricket on weekends.\",\n      \"type\": \"written\"\n    },\n    {\n      \"questionId\": 2,\n      \"question\": \"Describe your daily routine.\",\n      \"answer\": \"I wake up at 7 AM every day. After breakfast, I start working from home. In the evening, I go for a walk and have dinner with my family.\",\n      \"type\": \"written\"\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/evaluate-test",
+          "host": ["{{baseUrl}}"],
+          "path": ["evaluate-test"]
+        },
+        "description": "Submit test answers for AI evaluation"
+      },
+      "response": []
+    },
+    {
+      "name": "Generate Listening Audio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"questionId\": 1\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/generate-listening-audio",
+          "host": ["{{baseUrl}}"],
+          "path": ["generate-listening-audio"]
+        },
+        "description": "Generate TTS audio for listening test (questionId: 1-4)"
+      },
+      "response": []
+    }
+  ]
+}
