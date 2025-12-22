@@ -3,67 +3,85 @@ import fetch from "node-fetch";
 
 const router = express.Router();
 
-console.log(" laila-chat route loaded");
+console.log("laila-chat route loaded (STREAMING)");
 
 router.post("/", async (req, res) => {
   try {
-    const { message } = req.body;
+    const { messages, language = "en", userName } = req.body;
 
-    // Validation (same intent as TS)
-    if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "Message is required" });
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({
+        success: false,
+        error: "Messages array is required",
+      });
     }
 
-    // Prompt mirrors laila-chat.ts behavior
-    const prompt = `
-You are Laila, a friendly English-speaking coach.
+    const systemPrompt = `
+You are Laila, a friendly and helpful English course advisor.
+
+${userName ? `The user's name is ${userName}. Use it occasionally.` : ""}
 
 Your role:
-- Help students improve spoken English
-- Correct grammar gently
-- Suggest better sentence structures
+- Help users improve spoken English
+- Recommend courses
 - Encourage confidence
-- Keep replies short, clear, and conversational
-
-Student message:
-"${message}"
-
-Reply in plain text only.
+- Respond in ${language === "hi" ? "Hindi with English terms" : "English"}
 `;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+    const geminiMessages = [
+      { role: "user", parts: [{ text: systemPrompt }] },
+      { role: "model", parts: [{ text: "Understood! I am Laila." }] },
+      ...messages.map((m) => ({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text: m.content }],
+      })),
+    ];
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
+
+    const response = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: geminiMessages,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 1024,
         },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: prompt }]
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (!data.candidates) {
-      console.error("Gemini raw error:", data);
-      return res.status(500).json({ error: "AI response failed" });
-    }
-
-    const reply = data.candidates[0].content.parts[0].text;
-
-    res.json({
-      reply
+      }),
     });
 
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("Gemini error:", err);
+      return res.status(500).json({
+        success: false,
+        error: "AI service error",
+      });
+    }
+
+    // 🔥 SSE HEADERS
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    for (const word of text.split(" ")) {
+      res.write(
+        `data: ${JSON.stringify({
+          choices: [{ delta: { content: word + " " } }],
+        })}\n\n`
+      );
+    }
+
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (error) {
-    console.error("Laila chat failed:", error.message);
-    res.status(500).json({ error: "Chat failed" });
+    console.error("Laila streaming error:", error);
+    res.write(`data: [DONE]\n\n`);
+    res.end();
   }
 });
 

@@ -17,12 +17,14 @@ export interface TimeSlot {
 
 export interface BookingRequest {
   name: string;
-  phone: string;
   email: string;
-  course: string;
-  message?: string;
-  slotId: string;
+  phone: string;
+  preferred_slot: string;
+  slotId: number;
 }
+
+
+
 
 export interface BookingResponse {
   success: boolean;
@@ -70,12 +72,14 @@ export interface ChatMessage {
  * Fetch available time slots for booking
  */
 export async function fetchSlots(): Promise<TimeSlot[]> {
-  const response = await fetch(`${API_BASE_URL}/slots`);
+  console.log('FETCHING SLOTS FROM FRONTEND');
   
+  const response = await fetch(`${API_BASE_URL}/bookings/slots`);
+
   if (!response.ok) {
     throw new Error('Failed to fetch available slots');
   }
-  
+
   const data = await response.json();
   return data.slots;
 }
@@ -83,21 +87,21 @@ export async function fetchSlots(): Promise<TimeSlot[]> {
 /**
  * Create a new booking
  */
-export async function createBooking(booking: BookingRequest): Promise<BookingResponse> {
+export async function createBooking(
+  booking: BookingRequest
+): Promise<BookingResponse> {
   const response = await fetch(`${API_BASE_URL}/bookings`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(booking),
   });
-  
+
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.error || 'Failed to create booking');
   }
-  
+
   return data;
 }
 
@@ -117,13 +121,13 @@ export async function evaluateTest(
     },
     body: JSON.stringify({ answers, testType, userName, userEmail }),
   });
-  
+
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.error || 'Failed to evaluate test');
   }
-  
+
   return data;
 }
 
@@ -141,13 +145,13 @@ export async function generateListeningAudio(questionId: number): Promise<{
     },
     body: JSON.stringify({ questionId }),
   });
-  
+
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw new Error(data.error || 'Failed to generate audio');
   }
-  
+
   return data;
 }
 

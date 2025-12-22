@@ -1,55 +1,98 @@
 import express from "express";
 import fetch from "node-fetch";
+import fs from "fs";
+import path from "path";
 
 const router = express.Router();
 
-console.log("generate-listening-audio route loaded");
+console.log("generate-listening-audio route loaded (MOCK + FALLBACK)");
 
 router.post("/", async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, questionId } = req.body;
 
-    if (!text || typeof text !== "string") {
-      return res.status(400).json({ error: "Text is required" });
+    const finalText =
+      text ||
+      (typeof questionId === "number"
+        ? `You will now hear listening question number ${questionId}. Please listen carefully and answer.`
+        : null);
+
+    if (!finalText || typeof questionId !== "number") {
+      return res.status(400).json({
+        error: "questionId (number) is required",
+      });
     }
 
-    const response = await fetch(
+    /* -------------------------------------------------
+       1️⃣ MOCK AUDIO (PRIMARY – FAST & SAFE)
+    -------------------------------------------------- */
+    const mockAudioPath = path.join(
+      process.cwd(),
+      "mock-audio",
+      `q${questionId}.mp3`
+    );
+
+    if (fs.existsSync(mockAudioPath)) {
+      const buffer = fs.readFileSync(mockAudioPath);
+      const base64Audio = buffer.toString("base64");
+
+      return res.json({
+        audioContent: base64Audio,
+        transcript: finalText,
+      });
+    }
+
+    /* -------------------------------------------------
+       2️⃣ ELEVENLABS FALLBACK (OPTIONAL)
+       Enable only if explicitly allowed
+    -------------------------------------------------- */
+    if (process.env.ENABLE_ELEVENLABS !== "true") {
+      return res.status(503).json({
+        error: "Audio service unavailable",
+      });
+    }
+
+    const elevenRes = await fetch(
       "https://api.elevenlabs.io/v1/text-to-speech/EXAVITQu4vr4xnSDxMaL",
       {
         method: "POST",
         headers: {
           "xi-api-key": process.env.ELEVENLABS_API_KEY,
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Accept: "audio/mpeg",
         },
         body: JSON.stringify({
-          text,
-          model_id: "eleven_multilingual_v2",
+          text: finalText,
+          model_id: "eleven_turbo_v2",
           voice_settings: {
-            stability: 0.5,
-            similarity_boost: 0.7
-          }
-        })
+            stability: 0.4,
+            similarity_boost: 0.75,
+          },
+        }),
       }
     );
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("ElevenLabs error:", err);
-      throw new Error("Audio generation failed");
+    if (!elevenRes.ok) {
+      const errText = await elevenRes.text();
+      console.error("ElevenLabs API error:", errText);
+      return res.status(500).json({
+        error: "Failed to generate listening audio",
+      });
     }
 
-    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    const buffer = Buffer.from(await elevenRes.arrayBuffer());
+    const base64Audio = buffer.toString("base64");
 
-    res.set({
-      "Content-Type": "audio/mpeg",
-      "Content-Disposition": "inline; filename=audio.mp3"
+    res.json({
+      audioContent: base64Audio,
+      transcript: finalText,
     });
 
-    res.send(audioBuffer);
-
   } catch (error) {
-    console.error("Listening audio generation failed:", error.message);
-    res.status(500).json({ error: "Listening audio generation failed" });
+    console.error("Listening audio generation error:", error);
+    res.status(500).json({
+      error: "Listening audio generation failed",
+    });
   }
 });
 

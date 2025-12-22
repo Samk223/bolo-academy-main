@@ -1,5 +1,6 @@
 import express from "express";
 import pool from "./db.js";
+import cors from "cors";
 import bookingsRoute from "./routes/bookings.js";
 import evaluateTestRoute from "./routes/evaluate-test.js";
 import generateListeningAudio from "./routes/generate-listening-audio.js";
@@ -12,6 +13,15 @@ const PORT = 3000;
 console.log(" SERVER INDEX.JS FROM /server IS RUNNING");
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: "http://localhost:8080",
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+
 app.use("/bookings", bookingsRoute);
 app.use("/evaluate-test", evaluateTestRoute);
 app.use("/generate-listening-audio", generateListeningAudio);

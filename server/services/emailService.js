@@ -14,37 +14,63 @@ const transporter = nodemailer.createTransport({
  * Send booking emails
  */
 export async function sendBookingEmails({ name, email, phone, slot }) {
-  // Email to student
   console.log("📧 Sending booking emails...");
 
+  // ---- Time formatting helper ----
+  const formatTime = (timeStr) => {
+    const [hour, minute] = timeStr.split(":").map(Number);
+    const period = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${period}`;
+  };
+
+  const formattedDate = new Date(slot.date).toDateString();
+  const formattedStart = formatTime(slot.start);
+  const formattedEnd = formatTime(slot.end);
+
+  // ---- Student email ----
   const studentMail = {
-    from: `"Vintage English Academy" <${process.env.SMTP_USER}>`,
+    from: `"BOLO ACADEMY" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Your Trial Class Booking is Confirmed 🎉",
     html: `
-      <h3>Hello ${name},</h3>
-      <p>Your trial class has been successfully booked.</p>
-      <p><b>Slot:</b> ${slot}</p>
-      <p>We’ll contact you shortly.</p>
+      <p>Hello ${name},</p>
+
+      <p>Your free trial class has been successfully booked.</p>
+
+      <p><b>Slot:</b><br/>
+      Date: ${formattedDate}<br/>
+      Time: ${formattedStart} - ${formattedEnd}
+      </p>
+
+      <p>Thanks a lot for your precious commitment.</p>
+      <p>We will contact you shortly.</p>
+
       <br/>
-      <p>– Vintage English Academy</p>
+      <p>- BOLO ACADEMY</p>
     `,
   };
 
-  // Email to admin
+  // ---- Admin email ----
   const adminMail = {
-    from: `"Vintage English Academy" <${process.env.SMTP_USER}>`,
+    from: `"BOLO ACADEMY" <${process.env.SMTP_USER}>`,
     to: process.env.ADMIN_EMAIL,
-    subject: "📌 New Trial Booking",
+    subject: " New Trial Booking",
     html: `
-      <h3>New Booking Received</h3>
+      <h3>New Trial Booking Received</h3>
       <p><b>Name:</b> ${name}</p>
       <p><b>Email:</b> ${email}</p>
       <p><b>Phone:</b> ${phone}</p>
-      <p><b>Slot:</b> ${slot}</p>
+      <p>
+        <b>Slot:</b><br/>
+        Date: ${formattedDate}<br/>
+        Time: ${formattedStart} - ${formattedEnd}
+      </p>
     `,
   };
 
   await transporter.sendMail(studentMail);
   await transporter.sendMail(adminMail);
 }
+
+

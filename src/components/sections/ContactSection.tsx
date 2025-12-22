@@ -36,16 +36,35 @@ const contactInfo = [
   },
 ];
 
-const formatDate = (dateStr: string) => {
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
 };
 
-const formatTime = (timeStr: string) => {
-  const [hours] = timeStr.split(':');
+
+const formatTime = (timeStr?: string) => {
+  if (!timeStr) return '';
+  const [hours, minutes] = timeStr.split(':');
   const hour = parseInt(hours);
-  return hour >= 12 ? `${hour === 12 ? 12 : hour - 12}:00 PM` : `${hour}:00 AM`;
+  return hour >= 12
+    ? `${hour === 12 ? 12 : hour - 12}:${minutes} PM`
+    : `${hour}:${minutes} AM`;
 };
+
+const isValidName = (name: string) =>
+  /^[A-Za-z ]{2,50}$/.test(name.trim());
+
+const isValidEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidPhone = (phone: string) =>
+  /^[0-9]{10}$/.test(phone);
+
 
 export default function ContactSection() {
   const ref = useRef(null);
@@ -56,6 +75,15 @@ export default function ContactSection() {
   const [slots, setSlots] = useState<TimeSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [loadingSlots, setLoadingSlots] = useState(true);
+
+  const [errors, setErrors] = useState<{
+    name?: string;
+    email?: string;
+    phone?: string;
+    slot?: string;
+  }>({});
+
+
   const [bookingDetails, setBookingDetails] = useState<{
     slot: { slot_date: string; start_time: string; end_time: string } | null;
   } | null>(null);
@@ -74,62 +102,104 @@ export default function ContactSection() {
   }, []);
 
   const loadSlots = async () => {
-  setLoadingSlots(true);
-  try {
-    const slotsData = await fetchSlots();
-    setSlots(slotsData || []);
-  } catch (error) {
-    console.error('Error fetching slots:', error);
-    toast({
-      title: 'Error',
-      description: 'Failed to load available time slots. Please try again.',
-      variant: 'destructive',
-    });
-  } finally {
-    setLoadingSlots(false);
-  }
-};
-
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-
-  const formData = new FormData(e.currentTarget);
-  const bookingData = {
-    name: formData.get('name') as string,
-    email: formData.get('email') as string,
-    phone: formData.get('phone') as string,
-    course: formData.get('course') as string,
-    message: formData.get('message') as string,
-    slotId: selectedSlot,
+    setLoadingSlots(true);
+    try {
+      const slotsData = await fetchSlots();
+      console.log('SLOTS IN COMPONENT:', slotsData);
+      setSlots(slotsData || []);
+    } catch (error) {
+      console.error('Error fetching slots:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load available time slots. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoadingSlots(false);
+    }
   };
 
-  try {
-    const data = await createBooking(bookingData);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-    setHasBooked(true);
-    setBookingDetails({ slot: data.booking });
-    localStorage.setItem('hasBookedTrial', 'true');
+    const formData = new FormData(e.currentTarget);
 
-    toast({
-      title: 'Booking Confirmed!',
-      description: 'Your free trial class has been booked. We look forward to meeting you!',
-    });
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
 
-    (e.target as HTMLFormElement).reset();
-    setSelectedSlot('');
-    loadSlots();
-  } catch (error: any) {
-    console.error('Booking error:', error);
-    toast({
-      title: 'Booking Failed',
-      description: error.message || 'An unexpected error occurred. Please try again.',
-      variant: 'destructive',
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    const newErrors: typeof errors = {};
+
+    if (!isValidName(name)) {
+      newErrors.name = 'Please enter a valid full name';
+    }
+
+    if (!isValidEmail(email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!isValidPhone(phone)) {
+      newErrors.phone = 'Please enter a valid 10-digit phone number';
+    }
+
+    if (!selectedSlot) {
+      newErrors.slot = 'Please select a time slot';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setIsSubmitting(false);
+      return;
+    }
+
+    setErrors({});
+
+    const bookingData = {
+      name,
+      email,
+      phone,
+      preferred_slot: selectedSlot,
+      slotId: Number(selectedSlot),
+    };
+
+
+
+    try {
+      const data = await createBooking(bookingData);
+
+      setHasBooked(true);
+      setBookingDetails({
+        slot: {
+          slot_date: data.booking.slot_date,
+          start_time: data.booking.start_time,
+          end_time: data.booking.end_time,
+        },
+      });
+
+      setHasBooked(true);
+
+
+      localStorage.setItem('hasBookedTrial', 'true');
+
+      toast({
+        title: 'Booking Confirmed!',
+        description: 'Your free trial class has been booked.',
+      });
+
+      (e.target as HTMLFormElement).reset();
+      setSelectedSlot('');
+      loadSlots();
+    } catch (error: any) {
+      toast({
+        title: 'Booking Failed',
+        description: error.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
 
   const handleBookAgain = () => {
@@ -163,9 +233,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
               <span className="text-primary"> Free Trial</span>
               <span className="block">Today</span>
             </h2>
-            
+
             <p className="text-lg text-muted-foreground mb-10 leading-relaxed">
-              Ready to transform your English speaking skills? Book a free trial class and experience 
+              Ready to transform your English speaking skills? Book a free trial class and experience
               our teaching methodology firsthand. No commitment required!
             </p>
 
@@ -222,7 +292,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <div className="bg-card rounded-2xl p-8 md:p-10 shadow-card">
-              {hasBooked && bookingDetails ? (
+              {hasBooked && bookingDetails?.slot ? (
                 // Success state with booking details
                 <div className="text-center py-8">
                   <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -258,7 +328,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                   <h3 className="font-display text-2xl font-bold text-foreground mb-6">
                     Book Your Free Trial Class
                   </h3>
-                  
+
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
@@ -273,6 +343,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                           minLength={2}
                           maxLength={100}
                         />
+                        {errors.name && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.name}
+                          </p>
+                        )}
+
                       </div>
                       <div>
                         <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
@@ -286,6 +362,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                           required
                           pattern="[\d\s+\-()]{10,}"
                         />
+                        {errors.phone && (
+                          <p className="text-xs text-destructive mt-1">
+                            {errors.phone}
+                          </p>
+                        )}
+
                       </div>
                     </div>
 
@@ -300,6 +382,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                         placeholder="you@example.com"
                         required
                       />
+                      {errors.email && (
+                        <p className="text-xs text-destructive mt-1">
+                          {errors.email}
+                        </p>
+                      )}
+
                     </div>
 
                     <div>
@@ -341,16 +429,17 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                                 {formatDate(date)}
                               </p>
                               <div className="flex flex-wrap gap-2">
-                                {dateSlots.map((slot) => (
+                                {Array.from(
+                                  new Map(dateSlots.map(slot => [slot.start_time, slot])).values()
+                                ).map((slot) => (
                                   <button
                                     key={slot.id}
                                     type="button"
                                     onClick={() => setSelectedSlot(slot.id)}
-                                    className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${
-                                      selectedSlot === slot.id
-                                        ? 'bg-primary text-primary-foreground border-primary'
-                                        : 'bg-background border-input hover:border-primary hover:bg-primary/5'
-                                    }`}
+                                    className={`px-3 py-1.5 text-sm rounded-md border transition-colors ${selectedSlot === slot.id
+                                      ? 'bg-primary text-primary-foreground border-primary'
+                                      : 'bg-background border-input hover:border-primary hover:bg-primary/5'
+                                      }`}
                                   >
                                     {formatTime(slot.start_time)}
                                   </button>
@@ -363,6 +452,12 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                       {!selectedSlot && slots.length > 0 && (
                         <p className="text-xs text-destructive mt-1">Please select a time slot</p>
                       )}
+                      {errors.slot && (
+                        <p className="text-xs text-destructive mt-1">
+                          {errors.slot}
+                        </p>
+                      )}
+
                     </div>
 
                     <div>
@@ -378,10 +473,10 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                       />
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      size="lg" 
-                      className="w-full" 
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full"
                       disabled={isSubmitting || !selectedSlot || loadingSlots}
                     >
                       {isSubmitting ? (

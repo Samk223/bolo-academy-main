@@ -28,41 +28,103 @@ router.get("/", async (req, res) => {
   }
 });
 
+const isValidEmail = (email) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const isValidPhone = (phone) =>
+  /^[6-9]\d{9}$/.test(phone); // Indian mobile numbers
+
+const isValidName = (name) =>
+  typeof name === "string" && name.trim().length >= 2;
+
 
 router.post("/", async (req, res) => {
   try {
     const { name, email, phone, preferred_slot, slotId } = req.body;
 
-    if (!name || !email || !phone || !slotId) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!isValidName(name)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid name",
+      });
     }
 
+    if (!isValidEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid email address",
+      });
+    }
+
+    if (!isValidPhone(phone)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please enter a valid 10-digit phone number",
+      });
+    }
+
+    if (!slotId) {
+      return res.status(400).json({
+        success: false,
+        error: "Please select a valid time slot",
+      });
+    }
+
+
+    // 1️ Create booking (already works)
     const booking = await bookSlot({
       name,
       email,
       phone,
       preferred_slot,
-      slotId
+      slotId,
     });
 
+    // 2️ Fetch slot details (THIS FIXES BLANK PAGE)
+    const slotResult = await pool.query(
+      `
+      SELECT slot_date, start_time, end_time
+      FROM time_slots
+      WHERE id = $1
+      `,
+      [slotId]
+    );
+
+    const slot = slotResult.rows[0];
+
+    // 3️ Send emails (unchanged for now)
     await sendBookingEmails({
       name,
       email,
       phone,
-      slot: preferred_slot,
+      slot: {
+        date: slot.slot_date,
+        start: slot.start_time,
+        end: slot.end_time,
+      },
     });
 
+
+    // 4️ RESTORED RESPONSE SHAPE (TS COMPATIBLE)
     res.status(201).json({
-      message: "Booking created successfully",
-      booking
+      success: true,
+      message: "Trial class booked successfully!",
+      booking: {
+        ...booking,
+        slot_date: slot.slot_date,
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+      },
     });
 
   } catch (error) {
     console.error("Booking failed:", error.message);
 
     res.status(400).json({
-      error: error.message || "Failed to create booking"
+      success: false,
+      error: error.message || "Failed to create booking",
     });
   }
 });
+
 export default router;
