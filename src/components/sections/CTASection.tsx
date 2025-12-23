@@ -74,7 +74,7 @@ export default function CTASection() {
               className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               asChild
             >
-              <a href="tel:+919876543210">Call Now: +91 98765 43210</a>
+              <a href="tel:+919370149940">Call Now: +91 93701 49940</a>
             </Button>
           </motion.div>
         </motion.div>

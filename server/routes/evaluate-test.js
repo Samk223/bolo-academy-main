@@ -22,10 +22,9 @@ router.post("/", async (req, res) => {
     const formattedAnswers = answers
       .map(
         (a) => `
-Question ID: ${a.questionId}
-Question (${a.type}): ${a.question}
-Student Answer: ${a.answer || "No answer"}
-`
+        Question ID: ${a.questionId}
+        Question (${a.type}): ${a.question}
+        Student Answer: ${a.answer || "No answer"}`
       )
       .join("\n");
 
@@ -33,18 +32,18 @@ Student Answer: ${a.answer || "No answer"}
 You are an English proficiency evaluator.
 
 Evaluate each answer separately on:
-- Grammar (0–100)
-- Vocabulary (0–100)
-- Coherence (0–100)
-- Fluency (0–100)
+- Grammar (0-100)
+- Vocabulary (0-100)
+- Coherence (0-100)
+- Fluency (0-100)
 
 Then provide:
 - Overall feedback
 - Strengths (array)
 - Areas to improve (array)
-- CEFR level (A1–C1)
+- CEFR level (A1-C1)
 - Recommended course name
-- Final percentage score (0–100)
+- Final percentage score (0-100)
 
 Return STRICT JSON ONLY in this format:
 

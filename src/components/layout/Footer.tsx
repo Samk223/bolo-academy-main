@@ -1,25 +1,25 @@
 import { BookOpen, Facebook, Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 
 const socialLinks = [
-  { icon: Facebook, href: '#', label: 'Facebook' },
-  { icon: Instagram, href: '#', label: 'Instagram' },
-  { icon: Twitter, href: '#', label: 'Twitter' },
-  { icon: Linkedin, href: '#', label: 'LinkedIn' },
-  { icon: Youtube, href: '#', label: 'YouTube' },
+  { icon: Facebook, href: 'https://www.facebook.com/', label: 'Facebook' },
+  { icon: Instagram, href: 'https://www.instagram.com/', label: 'Instagram' },
+  { icon: Twitter, href: 'https://x.com/', label: 'Twitter' },
+  { icon: Linkedin, href: 'https://in.linkedin.com/', label: 'LinkedIn' },
+  { icon: Youtube, href: 'https://www.youtube.com/', label: 'YouTube' },
 ];
 
 const footerLinks = {
   courses: [
-    { name: 'Student Foundation', href: '#courses' },
-    { name: 'Professional Excellence', href: '#courses' },
-    { name: 'Competitive Edge', href: '#courses' },
-    { name: 'Teacher Training', href: '#courses' },
+    { name: 'Basic Boost Plan', href: '#courses' },
+    { name: 'Speaker Combo Plan', href: '#courses' },
+    { name: 'Fluency Fast-Track Plan', href: '#courses' },
+    { name: 'Gold Master Plan', href: '#courses' },
   ],
   company: [
     { name: 'About Us', href: '#about' },
     { name: 'Testimonials', href: '#testimonials' },
     { name: 'Contact', href: '#contact' },
-    { name: 'Privacy Policy', href: '#' },
+    { name: 'Home', href: '#home' },
   ],
 };
 
@@ -35,7 +35,7 @@ export default function Footer() {
                 <BookOpen className="w-5 h-5 text-primary-foreground" />
               </div>
               <span className="font-display text-xl font-bold text-background">
-                Speak<span className="text-primary">English</span>
+                Bolo<span className="text-primary">Academy</span>
               </span>
             </a>
             <p className="text-background/70 max-w-md mb-6 leading-relaxed">
@@ -95,10 +95,10 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-background/50 text-sm">
-            © {new Date().getFullYear()} SpeakEnglish Academy. All rights reserved.
+            © {new Date().getFullYear()} Bolo Academy. All rights reserved.
           </p>
           <p className="text-background/50 text-sm">
-            Made with ❤️ in Mumbai
+            Made with ❤️ in Sangli
           </p>
         </div>
       </div>

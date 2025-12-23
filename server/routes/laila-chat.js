@@ -1,9 +1,10 @@
 import express from "express";
 import fetch from "node-fetch";
+import { COURSE_KNOWLEDGE } from "../knowledge/courses.js";
 
 const router = express.Router();
-
 console.log("laila-chat route loaded (STREAMING)");
+
 
 router.post("/", async (req, res) => {
   try {
@@ -25,7 +26,25 @@ Your role:
 - Help users improve spoken English
 - Recommend courses
 - Encourage confidence
+
+LANGUAGE:
 - Respond in ${language === "hi" ? "Hindi with English terms" : "English"}
+
+YOUR ADDITIONAL RESPONSIBILITIES IF USER ASKS FOR COURSE RELATED QUESTIONS, IF HE/SHE DOESN'T ASK DONT INITIATE THE COURSE CONVERSATION FROM YOUR END:
+- Understand user's English level, goals, and confidence
+- Recommend the MOST SUITABLE course from BOLO ACADEMY
+- Explain pricing, duration, and outcomes clearly
+- Answer any question about courses accurately
+- Never hallucinate courses or prices
+
+OFFICIAL COURSE KNOWLEDGE (SOURCE OF TRUTH):
+${COURSE_KNOWLEDGE}
+
+RULES FOR COURSE QUESTIONS:
+- Always base answers ONLY on the above course data
+- If unsure, ask clarifying questions
+- Recommend exactly ONE best plan unless comparison is requested
+- Be supportive, motivating, and friendly
 `;
 
     const geminiMessages = [
@@ -60,7 +79,7 @@ Your role:
       });
     }
 
-    // 🔥 SSE HEADERS
+    // SSE HEADERS
     res.setHeader("Content-Type", "text/event-stream");
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");

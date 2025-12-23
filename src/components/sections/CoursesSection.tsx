@@ -7,46 +7,83 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 const courses = [
   {
     icon: Users,
-    title: 'Student Foundation',
-    description: 'Perfect for school and college students looking to build a strong foundation in spoken English.',
-    features: ['Basic to advanced vocabulary', 'Grammar fundamentals', 'Pronunciation practice', 'Group discussions'],
+    title: 'Basic Boost Plan',
+    price: '₹2,999 / month',
+    description:
+      'Start speaking English confidently from Day 1 in a small group setting.',
+    features: [
+      'Daily 60-minute live group class (5–7 students)',
+      'Sentence building & basic grammar',
+      'Confidence drills & speaking games',
+      'Open mic, interviews & daily activities',
+      'Weekly instructor feedback',
+    ],
+    popular: false,
+  },
+  {
+    icon: MessageCircle,
+    title: 'Speaker Combo Plan',
+    price: '₹4,999 / month',
+    description:
+      'Group learning with personal attention for faster improvement.',
+    features: [
+      'Everything in Basic Boost Plan',
+      'Weekly 1-on-1 session (30 mins)',
+      'Personalized error correction',
+      'Confidence coaching',
+      'Fluency improvement tracking',
+    ],
     popular: false,
   },
   {
     icon: Briefcase,
-    title: 'Professional Excellence',
-    description: 'Tailored for working professionals aiming to excel in business communication.',
-    features: ['Corporate vocabulary', 'Presentation skills', 'Email writing', 'Interview preparation'],
-    popular: true,
+    title: 'Fluency Fast-Track Plan',
+    price: '₹9,999 / month',
+    description:
+      'Your personal English trainer — every day.',
+    features: [
+      'Daily 60-minute 1-on-1 live sessions',
+      'Customized grammar & speaking practice',
+      'Roleplays, mock calls & activities',
+      'Daily feedback & improvement plan',
+      'Interview & workplace English',
+    ],
+    popular: true, // MOST POPULAR
   },
   {
     icon: GraduationCap,
-    title: 'Competitive Edge',
-    description: 'Specialized training for competitive exam aspirants focusing on English proficiency.',
-    features: ['Exam-specific strategies', 'Reading comprehension', 'Verbal ability', 'Mock tests'],
-    popular: false,
-  },
-  {
-    icon: BookOpen,
-    title: 'Teacher Training',
-    description: 'Enhance your teaching methodology and English communication skills.',
-    features: ['Advanced grammar', 'Teaching techniques', 'Classroom English', 'Confidence building'],
+    title: 'Gold Master Plan',
+    price: '₹14,999 / month',
+    description:
+      'Our most premium English transformation program.',
+    features: [
+      'Daily 1-on-1 live sessions (60 mins)',
+      'Optional group activities access',
+      'Daily voice-note corrections',
+      'Weekly video feedback',
+      '24/7 doubt-clearing support',
+      'Mock interviews & roleplay drills',
+    ],
     popular: false,
   },
 ];
+
 
 const deliveryModes = [
   {
     icon: Video,
     title: 'Live Online Classes',
-    description: 'Interactive sessions via Google Meet & Zoom from the comfort of your home.',
+    description:
+      'Daily live classes via Google Meet & Zoom with expert instructor guidance.',
   },
   {
     icon: MessageCircle,
-    title: 'In-Person Training',
-    description: 'One-on-one sessions in Mumbai for personalized attention and faster results.',
+    title: 'Personalized 1-on-1 Training',
+    description:
+      'Dedicated personal sessions for fast confidence and fluency improvement.',
   },
 ];
+
 
 export default function CoursesSection() {
   const ref = useRef(null);
@@ -62,13 +99,15 @@ export default function CoursesSection() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="text-primary font-semibold tracking-wider uppercase text-sm">Our Programs</span>
+          <span className="text-primary font-semibold tracking-wider uppercase text-sm">
+            1-Month Spoken English Master Programs
+          </span>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-foreground mt-4 mb-6">
             Courses Designed for
             <span className="text-primary"> Your Success</span>
           </h2>
           <p className="text-lg text-muted-foreground">
-            Whether you're a student, professional, teacher, or exam aspirant — we have the perfect program 
+            Whether you're a student, professional, teacher, or exam aspirant — we have the perfect program
             to help you achieve fluency and confidence in spoken English.
           </p>
         </motion.div>
@@ -82,38 +121,59 @@ export default function CoursesSection() {
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.1 * index }}
             >
-              <Card className={`h-full transition-all duration-300 hover:shadow-card hover:-translate-y-2 ${
-                course.popular ? 'border-primary ring-2 ring-primary/20' : ''
-              }`}>
+              <Card
+                className={`h-full flex flex-col transition-all duration-300 hover:shadow-card hover:-translate-y-2 ${course.popular ? 'border-primary ring-2 ring-primary/20' : ''
+                  }`}
+              >
                 {course.popular && (
-                  <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 text-center">
+                  <div className="bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 text-center rounded-t-xl">
                     MOST POPULAR
                   </div>
                 )}
+
                 <CardHeader>
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                     <course.icon className="w-7 h-7 text-primary" />
                   </div>
+
                   <CardTitle className="text-xl">{course.title}</CardTitle>
-                  <CardDescription>{course.description}</CardDescription>
+
+                  <p className="text-2xl font-bold text-primary mt-2">
+                    {course.price}
+                  </p>
+
+                  <CardDescription className="mt-2">
+                    {course.description}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
+
+                <CardContent className="flex flex-col flex-1">
                   <ul className="space-y-3">
                     {course.features.map((feature) => (
-                      <li key={feature} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <li
+                        key={feature}
+                        className="flex items-center gap-2 text-sm text-muted-foreground"
+                      >
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                         {feature}
                       </li>
                     ))}
                   </ul>
-                  <Button variant="outline" className="w-full mt-6 group" asChild>
+
+                  <Button
+                    variant="outline"
+                    className="w-full mt-auto py-3 group"
+                    asChild
+                  >
                     <a href="#contact">
                       Learn More
                       <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </a>
                   </Button>
+
                 </CardContent>
               </Card>
+
             </motion.div>
           ))}
         </div>

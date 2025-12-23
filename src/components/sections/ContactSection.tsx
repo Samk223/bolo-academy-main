@@ -19,20 +19,20 @@ const contactInfo = [
   {
     icon: Phone,
     label: 'Phone',
-    value: '+91 98765 43210',
-    href: 'tel:+919876543210',
+    value: '+91 93701 49940',
+    href: 'tel:+919370149940',
   },
   {
     icon: Mail,
     label: 'Email',
-    value: 'hello@speakenglish.academy',
-    href: 'mailto:hello@speakenglish.academy',
+    value: 'info.boloacademy@gmail.com',
+    href: 'mailto:info.boloacademy@gmail.com',
   },
   {
     icon: MapPin,
     label: 'Location',
-    value: 'Mumbai, Maharashtra',
-    href: '#',
+    value: 'Sangli, Maharashtra',
+    href: 'https://maps.app.goo.gl/L9py54k8vMEchyrS8',
   },
 ];
 

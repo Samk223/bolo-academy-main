@@ -24,7 +24,7 @@ router.post("/", async (req, res) => {
     }
 
     /* -------------------------------------------------
-       1️⃣ MOCK AUDIO (PRIMARY – FAST & SAFE)
+       1️ MOCK AUDIO (PRIMARY – FAST & SAFE)
     -------------------------------------------------- */
     const mockAudioPath = path.join(
       process.cwd(),
@@ -43,7 +43,7 @@ router.post("/", async (req, res) => {
     }
 
     /* -------------------------------------------------
-       2️⃣ ELEVENLABS FALLBACK (OPTIONAL)
+       2️ ELEVENLABS FALLBACK (OPTIONAL)
        Enable only if explicitly allowed
     -------------------------------------------------- */
     if (process.env.ENABLE_ELEVENLABS !== "true") {

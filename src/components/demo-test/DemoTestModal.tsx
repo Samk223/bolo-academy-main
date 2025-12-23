@@ -299,7 +299,7 @@ const generateAudio = useCallback(async (questionId: number) => {
           {/* Header */}
           <div className="bg-primary text-primary-foreground p-6 flex items-center justify-between">
             <h2 className="text-xl font-bold">
-              {phase === 'select' && 'Start Your Journey'}
+              {phase === 'select' && 'Check Your English Proficiency'}
               {phase === 'test' && `${testType === 'written' ? 'Written' : 'Listening'} Test`}
               {phase === 'evaluating' && 'Evaluating Your Answers...'}
               {phase === 'results' && 'Your Test Results'}

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 const testimonials = [
   {
     name: 'Priya Sharma',
-    role: 'Software Engineer, TCS',
+    role: 'Software Engineer',
     content: 'The professional excellence course transformed my career. I now lead client meetings with confidence and clarity. The personalized attention made all the difference!',
     rating: 5,
   },
@@ -30,7 +30,7 @@ const testimonials = [
   },
   {
     name: 'Kavitha Iyer',
-    role: 'HR Manager, Wipro',
+    role: 'HR Manager, TechCorp',
     content: 'The online classes fit perfectly into my busy schedule. The quality of teaching is exceptional, and I\'ve seen remarkable improvement in just 3 months.',
     rating: 5,
   },

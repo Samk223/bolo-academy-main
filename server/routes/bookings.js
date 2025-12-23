@@ -71,7 +71,7 @@ router.post("/", async (req, res) => {
     }
 
 
-    // 1️ Create booking (already works)
+    // 1️ Create booking 
     const booking = await bookSlot({
       name,
       email,
@@ -92,7 +92,7 @@ router.post("/", async (req, res) => {
 
     const slot = slotResult.rows[0];
 
-    // 3️ Send emails (unchanged for now)
+    // 3️ Send emails 
     await sendBookingEmails({
       name,
       email,
