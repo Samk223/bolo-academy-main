@@ -182,7 +182,7 @@ export default function HeroSection() {
               repeat: Infinity,
               ease: "easeInOut"
             }} className="relative z-10">
-              <img alt="English teacher ready to help you learn" className="w-full h-full object-contain drop-shadow-2xl scale-110" src="src\assets\teacher1.png" />
+              <img alt="English teacher ready to help you learn" className="w-full h-full object-contain drop-shadow-2xl scale-110" src="public\teacher2.png" />
             </motion.div>
 
             {/* Glow effect behind – soft, low saturation orange */}
