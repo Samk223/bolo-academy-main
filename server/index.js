@@ -6,9 +6,14 @@ import evaluateTestRoute from "./routes/evaluate-test.js";
 import generateListeningAudio from "./routes/generate-listening-audio.js";
 import lailaChatRoute from "./routes/laila-chat.js";
 import slotsRoute from "./routes/slots.js";
+import dotenv from "dotenv"; 
+
+dotenv.config();
+
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
 
 console.log(" SERVER INDEX.JS FROM /server IS RUNNING");
 
