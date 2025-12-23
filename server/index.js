@@ -5,7 +5,6 @@ import bookingsRoute from "./routes/bookings.js";
 import evaluateTestRoute from "./routes/evaluate-test.js";
 import generateListeningAudio from "./routes/generate-listening-audio.js";
 import lailaChatRoute from "./routes/laila-chat.js";
-import slotsRoute from "./routes/slots.js";
 import dotenv from "dotenv"; 
 
 dotenv.config();
@@ -35,7 +34,7 @@ app.use("/bookings", bookingsRoute);
 app.use("/evaluate-test", evaluateTestRoute);
 app.use("/generate-listening-audio", generateListeningAudio);
 app.use("/laila-chat", lailaChatRoute);
-app.use("/slots", slotsRoute);
+
 
 app.get("/", (req, res) => {
   res.send("Backend server is running");
