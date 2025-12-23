@@ -21,11 +21,15 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:8080",
+    origin: [
+      "http://localhost:8080",
+      "https://bolo-academy-main.vercel.app"
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   })
 );
+
 
 app.use("/bookings", bookingsRoute);
 app.use("/evaluate-test", evaluateTestRoute);
