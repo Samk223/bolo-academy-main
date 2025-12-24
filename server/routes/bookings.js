@@ -93,16 +93,33 @@ router.post("/", async (req, res) => {
     const slot = slotResult.rows[0];
 
     // 3️ Send emails 
-    await sendBookingEmails({
-      name,
-      email,
-      phone,
-      slot: {
-        date: slot.slot_date,
-        start: slot.start_time,
-        end: slot.end_time,
-      },
-    });
+    try {
+      await sendBookingEmails({
+        name,
+        email,
+        phone,
+        slot: {
+          date: slot.slot_date,
+          start: slot.start_time,
+          end: slot.end_time,
+        },
+      });
+    } catch (err) {
+      console.error("Email error ignored:", err.message);
+    }
+
+
+
+    // await sendBookingEmails({
+    //   name,
+    //   email,
+    //   phone,
+    //   slot: {
+    //     date: slot.slot_date,
+    //     start: slot.start_time,
+    //     end: slot.end_time,
+    //   },
+    // });
 
 
     // 4️ RESTORED RESPONSE SHAPE (TS COMPATIBLE)

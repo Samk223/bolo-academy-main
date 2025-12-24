@@ -1,6 +1,6 @@
 import pool from "../db.js";
 
-export async function generateSlotsIfMissing() {
+export default async function generateSlotsIfMissing() {
     const { rows } = await pool.query(`
     SELECT COUNT(*) 
     FROM time_slots 

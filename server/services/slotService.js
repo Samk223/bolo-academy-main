@@ -1,5 +1,5 @@
 import pool from "../db.js";
-import { generateSlotsIfMissing } from "./slotGeneratorService.js";
+import generateSlotsIfMissing  from "./slotGeneratorService.js";
 
 export async function getAvailableSlots() {
   await generateSlotsIfMissing();
