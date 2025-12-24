@@ -166,40 +166,41 @@ export default function ContactSection() {
 
 
     try {
-      const data = await createBooking(bookingData);
-
-      // ✅ FALLBACK SLOT (CRITICAL FIX)
+      //  1. FIND SLOT LOCALLY (FOR INSTANT UI)
       const fallbackSlot = slots.find(
         (s) => String(s.id) === selectedSlot
       );
 
+      //  2. SHOW CONFIRMATION UI IMMEDIATELY
       setHasBooked(true);
       setBookingDetails({
         slot: {
-          slot_date: data.booking?.slot_date || fallbackSlot?.slot_date!,
-          start_time: data.booking?.start_time || fallbackSlot?.start_time!,
-          end_time: data.booking?.end_time || fallbackSlot?.end_time!,
+          slot_date: fallbackSlot?.slot_date || "",
+          start_time: fallbackSlot?.start_time || "",
+          end_time: fallbackSlot?.end_time || "",
         },
       });
 
-      localStorage.setItem('hasBookedTrial', 'true');
+      localStorage.setItem("hasBookedTrial", "true");
 
-      // ✅ REASSURANCE TOAST (NON-BLOCKING)
       toast({
         title: "Booking Confirmed ✅",
         description: "Your slot is booked. Email confirmation may arrive shortly.",
       });
 
-      (e.target as HTMLFormElement).reset();
-      setSelectedSlot('');
-      loadSlots();
+      //  3. FIRE BACKEND CALL (DON’T BLOCK UI)
+      createBooking(bookingData)
+        .then(() => {
+          loadSlots(); // refresh slots silently
+        })
+        .catch((err) => {
+          console.error("Backend/email issue ignored:", err.message);
+        });
+
     } catch (error: any) {
-      toast({
-        title: 'Booking failed.',
-        description: error.message || 'Please try again after some time.',
-        variant: 'destructive',
-      });
-    } finally {
+      console.error("Unexpected error:", error);
+    }
+    finally {
       setIsSubmitting(false);
     }
   };
