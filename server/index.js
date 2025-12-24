@@ -4,6 +4,7 @@ import cors from "cors";
 import bookingsRoute from "./routes/bookings.js";
 import evaluateTestRoute from "./routes/evaluate-test.js";
 import generateListeningAudio from "./routes/generate-listening-audio.js";
+import generateSlotsIfMissing  from "./services/slotGeneratorService.js";
 import lailaChatRoute from "./routes/laila-chat.js";
 import dotenv from "dotenv"; 
 
@@ -29,6 +30,9 @@ app.use(
   })
 );
 
+generateSlotsIfMissing()
+  .then(() => console.log("✅ Slots check complete on server start"))
+  .catch(err => console.error("❌ Slot generation failed", err));
 
 app.use("/bookings", bookingsRoute);
 app.use("/evaluate-test", evaluateTestRoute);
