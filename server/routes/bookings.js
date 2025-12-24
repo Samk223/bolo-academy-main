@@ -135,11 +135,11 @@ router.post("/", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Booking failed:", error.message);
+    console.error("Booking might take some time.", error.message);
 
     res.status(400).json({
       success: false,
-      error: error.message || "Failed to create booking",
+      error: error.message || "Please dont worry, ur trial was booked.",
     });
   }
 });

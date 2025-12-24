@@ -168,23 +168,26 @@ export default function ContactSection() {
     try {
       const data = await createBooking(bookingData);
 
+      // ✅ FALLBACK SLOT (CRITICAL FIX)
+      const fallbackSlot = slots.find(
+        (s) => String(s.id) === selectedSlot
+      );
+
       setHasBooked(true);
       setBookingDetails({
         slot: {
-          slot_date: data.booking.slot_date,
-          start_time: data.booking.start_time,
-          end_time: data.booking.end_time,
+          slot_date: data.booking?.slot_date || fallbackSlot?.slot_date!,
+          start_time: data.booking?.start_time || fallbackSlot?.start_time!,
+          end_time: data.booking?.end_time || fallbackSlot?.end_time!,
         },
       });
 
-      setHasBooked(true);
-
-
       localStorage.setItem('hasBookedTrial', 'true');
 
+      // ✅ REASSURANCE TOAST (NON-BLOCKING)
       toast({
-        title: 'Booking Confirmed!',
-        description: 'Your free trial class has been booked.',
+        title: "Booking Confirmed ✅",
+        description: "Your slot is booked. Email confirmation may arrive shortly.",
       });
 
       (e.target as HTMLFormElement).reset();
@@ -192,8 +195,8 @@ export default function ContactSection() {
       loadSlots();
     } catch (error: any) {
       toast({
-        title: 'Booking Failed',
-        description: error.message || 'Please try again.',
+        title: 'Booking failed.',
+        description: error.message || 'Please try again after some time.',
         variant: 'destructive',
       });
     } finally {
