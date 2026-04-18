@@ -4,6 +4,7 @@ import { X, PenLine, Headphones, ArrowRight, ArrowLeft, Loader2, Download, Check
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { generateListeningAudio, evaluateTest } from '@/services/api';
 
 
 interface DemoTestModalProps {
@@ -19,17 +20,17 @@ interface Question {
 }
 
 const writtenQuestions: Question[] = [
-  { id: 1, question: "What is your favorite hobby and why do you enjoy it?", type: 'easy', wordLimit: 50 },
-  { id: 2, question: "Describe the most memorable trip you have ever taken. What made it special?", type: 'medium', wordLimit: 100 },
-  { id: 3, question: "Do you think technology has made our lives better or worse? Give reasons for your answer.", type: 'hard', wordLimit: 150 },
-  { id: 4, question: "Write about a challenge you faced in life and how you overcame it. What lessons did you learn?", type: 'descriptive', wordLimit: 200 },
+  { id: 1, question: "What is your favorite hobby?", type: 'easy', wordLimit: 50 },
+  { id: 2, question: "If you had to chose between money and knowledge what would you chose and why?", type: 'medium', wordLimit: 100 },
+  { id: 3, question: "Are you an introvert, an extrovert or an ambivert ?", type: 'hard', wordLimit: 150 },
+  { id: 4, question: "What is your favourite food ?", type: 'descriptive', wordLimit: 200 },
 ];
 
 const listeningQuestions: Question[] = [
-  { id: 1, question: "What does the speaker tell you about themselves?", type: 'easy' },
+  { id: 1, question: "Was the speaker friendly?", type: 'easy' },
   { id: 2, question: "Describe the speaker's daily morning routine.", type: 'medium' },
-  { id: 3, question: "What reasons does the speaker give for learning English?", type: 'hard' },
-  { id: 4, question: "Summarize the speaker's weekend visit and what they did.", type: 'descriptive' },
+  { id: 3, question: "Does the speaker love learning English?", type: 'hard' },
+  { id: 4, question: "Was the speaker's weekend plan interesting?", type: 'descriptive' },
 ];
 
 type TestType = 'written' | 'listening' | null;
@@ -78,21 +79,7 @@ const generateAudio = useCallback(async (questionId: number) => {
 
   setAudioLoading(true);
   try {
-    const response = await fetch(
-      "http://localhost:3000/generate-listening-audio",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ questionId }),
-      }
-    );
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || "Failed to load audio");
-    }
-
-    const data = await response.json();
+    const data = await generateListeningAudio(questionId);
 
     const byteCharacters = atob(data.audioContent);
     const byteNumbers = Array.from(byteCharacters, c => c.charCodeAt(0));
@@ -160,22 +147,11 @@ const generateAudio = useCallback(async (questionId: number) => {
     }));
 
     try {
-      const response = await fetch('http://localhost:3000/evaluate-test', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          testType,
-          answers: formattedAnswers,
-        }),
-      });
+      if (!testType) throw new Error('Test type is missing');
+      
+      const data = await evaluateTest(formattedAnswers as any, testType);
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data?.error || 'Evaluation failed');
-
-
-      setResults(data);
+      setResults(data as any);
       setPhase('results');
     } catch (error: any) {
       console.error('Evaluation error:', error);

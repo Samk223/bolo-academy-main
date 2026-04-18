@@ -31,8 +31,11 @@ router.get("/", async (req, res) => {
 const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const isValidPhone = (phone) =>
-  /^[6-9]\d{9}$/.test(phone); // Indian mobile numbers
+const isValidPhone = (phone) => {
+  if (typeof phone !== 'string') return false;
+  const digitsOnly = phone.replace(/[\s+\-()]/g, '');
+  return /^[0-9]{10,}$/.test(digitsOnly);
+};
 
 const isValidName = (name) =>
   typeof name === "string" && name.trim().length >= 2;

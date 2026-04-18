@@ -62,8 +62,10 @@ const isValidName = (name: string) =>
 const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-const isValidPhone = (phone: string) =>
-  /^[0-9]{10}$/.test(phone);
+const isValidPhone = (phone: string) => {
+  const digitsOnly = phone.replace(/[\s+\-()]/g, '');
+  return /^[0-9]{10,}$/.test(digitsOnly);
+};
 
 
 export default function ContactSection() {
@@ -364,7 +366,6 @@ export default function ContactSection() {
                           type="tel"
                           placeholder="+91 98765 43210"
                           required
-                          pattern="[\d\s+\-()]{10,}"
                         />
                         {errors.phone && (
                           <p className="text-xs text-destructive mt-1">
